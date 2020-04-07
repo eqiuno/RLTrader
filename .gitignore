@@ -10,3 +10,5 @@ data/reports/*
 *.pkl
 venv/*
 env/*
+.idea/
+/data/
