@@ -132,10 +132,10 @@ class TradingEnv(gym.Env):
         }, ignore_index=True)
 
     def _done(self):
-        lost_90_percent_net_worth = float(self.net_worths[-1]) < (self.initial_balance / 10)
+        lost_10_percent_net_worth = float(self.net_worths[-1]) < (self.initial_balance * 10)
         has_next_frame = self.data_provider.has_next_ohlcv()
 
-        return lost_90_percent_net_worth or not has_next_frame
+        return lost_10_percent_net_worth or not has_next_frame
 
     def _reward(self):
         reward = self.reward_strategy.get_reward(current_step=self.current_step,
