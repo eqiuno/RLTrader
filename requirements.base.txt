@@ -9,6 +9,5 @@ ta
 statsmodels==0.10.0rc2
 empyrical
 ccxt
-psycopg2
 configparser
 quantstats>=0.0.17
