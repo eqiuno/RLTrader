@@ -24,7 +24,7 @@ class SortinoRatio(BaseRewardStrategy):
         curr_net_worth = net_worths[-1]
 
         initial_balance =  account_history['balance'][0]
-        downside_returns = [self.rf - x for x in net_worths if x / initial_balance < self.rf]
+        downside_returns = [round(self.rf - x / initial_balance, 2) for x in net_worths if x / initial_balance < self.rf]
         downside = pow(np.sum(np.square(downside_returns)) / len(downside_returns), 0.5) if len(downside_returns) > 0 else 1E-9
         reward = (net_worths[-1] / initial_balance - self.rf) / downside
         log_str = 'step:{:>5d} balance:{:>10.2f} prev_balance:{:>10.2f} price:{:>8.2f} worth:{:>10.2f} reward:{:>8.4f}'
