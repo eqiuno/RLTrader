@@ -1,16 +1,13 @@
 import pandas as pd
-
-from typing import List, Callable
+import numpy as np
+from typing import Callable, List
 
 from lib.env.reward.BaseRewardStrategy import BaseRewardStrategy
 
 
-class IncrementalProfit(BaseRewardStrategy):
-    last_bought: int = 0
-    last_sold: int = 0
-
-    def __init__(self):
-        pass
+class SortinoRatio(BaseRewardStrategy):
+    def __init__(self, rf=1.03):
+        self.rf = rf
 
     def reset_reward(self):
         pass
@@ -21,19 +18,15 @@ class IncrementalProfit(BaseRewardStrategy):
                    observations: pd.DataFrame,
                    account_history: pd.DataFrame,
                    net_worths: List[float]) -> float:
-        reward = 0
-
         curr_balance = account_history['balance'].values[-1]
         prev_balance = account_history['balance'].values[-2] if len(account_history['balance']) > 1 else curr_balance
         price = current_price()
         curr_net_worth = net_worths[-1]
 
-        if curr_balance > prev_balance:
-            reward = net_worths[-1] - net_worths[self.last_bought]
-            self.last_sold = current_step
-        elif curr_balance < prev_balance:
-            reward = observations['Close'].values[self.last_sold] - current_price()
-            self.last_bought = current_step
-        log_str = 'step:{:>5d} balance:{:>10.2f} prev_balance:{:>10.2f} price:{:>8.2f} worth:{:>10.2f} reward:{:>5.1f}'
+        initial_balance =  account_history['balance'][0]
+        downside_returns = [self.rf - x for x in net_worths if x / initial_balance < self.rf]
+        downside = pow(np.sum(np.square(downside_returns)) / len(downside_returns), 0.5) if len(downside_returns) > 0 else 1E-9
+        reward = (net_worths[-1] / initial_balance - self.rf) / downside
+        log_str = 'step:{:>5d} balance:{:>10.2f} prev_balance:{:>10.2f} price:{:>8.2f} worth:{:>10.2f} reward:{:>8.4f}'
         print(log_str.format(current_step, curr_balance, prev_balance, price, curr_net_worth, reward))
         return reward

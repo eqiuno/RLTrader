@@ -7,7 +7,7 @@ from enum import Enum
 from typing import List, Dict
 
 from lib.env.render import TradingChart
-from lib.env.reward import BaseRewardStrategy, IncrementalProfit, WeightedUnrealizedProfit
+from lib.env.reward import BaseRewardStrategy, IncrementalProfit, WeightedUnrealizedProfit, SortinoRatio
 from lib.env.trade import BaseTradeStrategy, SimulatedTradeStrategy
 from lib.data.providers import BaseDataProvider
 from lib.data.features.transform import max_min_normalize, mean_normalize, log_and_difference, difference
@@ -27,7 +27,7 @@ class TradingEnv(gym.Env):
 
     def __init__(self,
                  data_provider: BaseDataProvider,
-                 reward_strategy: BaseRewardStrategy = IncrementalProfit,
+                 reward_strategy: BaseRewardStrategy = SortinoRatio,
                  trade_strategy: BaseTradeStrategy = SimulatedTradeStrategy,
                  initial_balance: int = 10000,
                  commissionPercent: float = 0.25,
@@ -132,7 +132,7 @@ class TradingEnv(gym.Env):
         }, ignore_index=True)
 
     def _done(self):
-        lost_10_percent_net_worth = float(self.net_worths[-1]) < (self.initial_balance * 10)
+        lost_10_percent_net_worth = float(self.net_worths[-1]) < (self.initial_balance * 0.9)
         has_next_frame = self.data_provider.has_next_ohlcv()
 
         return lost_10_percent_net_worth or not has_next_frame
