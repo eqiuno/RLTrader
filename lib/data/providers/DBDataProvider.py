@@ -1,12 +1,13 @@
 import sqlite3
 import ccxt
+import os
 
 class DBDataProvider(object):
-    def __init__(self, exchange, db_file, timeframe, symbols=None):
+    def __init__(self, exchange, db_dir, timeframe='1m', symbols=None):
         # default timeframe 1m
         if symbols is None:
             symbols = ['BTC/USDT', 'ETH/USDT']
-        self.conn = sqlite3.connect(db_file)
+        self.conn = sqlite3.connect(os.path.join(db_dir, exchange + '.db'))
         self.exchange = exchange
         self.symbols = symbols
         self.timeframe = timeframe
